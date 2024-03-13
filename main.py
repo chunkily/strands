@@ -5,10 +5,9 @@ from trie import Trie
 
 def build_english_trie():
     try:
-        pickle_in = open("data/trie.pkl", "rb")
-        trie = pickle.load(pickle_in)
-        print("Loaded trie from trie.pkl")
-        return trie
+        with open("data/trie.pkl", "rb") as pickle_in:
+            trie = pickle.load(pickle_in)
+            return trie
     except FileNotFoundError:
         print("Building trie from words.json")
 
@@ -25,54 +24,113 @@ def build_english_trie():
 
 
 def read_board():
-    board = [["h", "e", "l"], ["w", "o", "l"], ["o", "r", "d"]]
-
-    for row in board:
-        print(row)
+    board = [
+        "rjgzip",
+        "yumrer",
+        "laalar",
+        "srnfit",
+        "apdnen",
+        "cniapc",
+        "aodlio",
+        "nysean",
+    ]
 
     return board
 
 
-def gen_permutations(board, trie, i, j, visited, word, words, n, m):
-    # Depth first search
-    for char in adjacent(board, i, j, n, m):
-        if visited[i][j]:
-            continue
-        word += char
-        print(word)
-        if trie.search(word):
-            words.add(word)
-        if trie.startsWith(word):
-            new_visited = visited.copy()
-            new_visited[i][j] = True
-            for x in range(max(0, i - 1), min(n, i + 2)):
-                for y in range(max(0, j - 1), min(m, j + 2)):
-                    gen_permutations(board, trie, x, y, new_visited, word, words, n, m)
-        word = word[:-1]
+def dfs(board, trie: Trie, i, j, path: list, words: dict, m, n):
+    # Check if the current cell is within the board and has not been visited yet
+    if i < 0 or i >= n or j < 0 or j >= m or (i, j) in path:
+        return
+
+    # Check if the current cell is not removed
+    char = board[i][j]
+    if char == " ":
+        return
+
+    # Check if the current path is a prefix of any word
+    word = "".join([board[x][y] for x, y in path]) + char
+    if not trie.startsWith(word):
+        return
+
+    path.append((i, j))
+
+    # If the current path is a word, add it to the result
+    if trie.search(word) and word not in words:
+        words[word] = path.copy()
+
+    # Explore the neighboring cells in the board
+    for dx, dy in [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ]:
+        dfs(board, trie, i + dx, j + dy, path, words, m, n)
+
+    # Backtrack and unmark the current cell
+    path.pop()
 
 
-def adjacent(board, i, j, n, m):
-    for x in range(max(0, i - 1), min(n, i + 2)):
-        for y in range(max(0, j - 1), min(m, j + 2)):
-            if x != i or y != j:
-                yield board[x][y]
+def display_answer(board, path, m, n):
+    for i in range(n):
+        for j in range(m):
+            char = board[i][j]
+            if (i, j) in path:
+                print(char.upper(), end=" ")
+            else:
+                print(".", end=" ")
+        print()
+
+
+def output(board, words, m, n):
+    terminal_length = 80
+
+    print(f"{len(words)} words found in the board:")
+
+    pos = 0
+    for word in sorted(words.keys()):
+        if pos + len(word) > terminal_length:
+            print()
+            pos = 0
+        print(word, end=" ")
+
+    while True:
+        word = input(
+            "\n\nEnter a word to display its path, a ? to redisplay all words,\n or press Enter to exit: "
+        )
+        if word == "":
+            return
+        elif word == "?":
+            pos = 0
+            for word in sorted(words.keys()):
+                if pos + len(word) > terminal_length:
+                    print()
+                    pos = 0
+                print(word, end=" ")
+        elif word in words:
+            display_answer(board, words[word], m, n)
+        else:
+            print("Word not found in the board")
 
 
 def main():
     trie = build_english_trie()
-    # print("hello", trie.search("hello"))
-    # print("henlo", trie.search("henlo"))
 
     board = read_board()
     n = len(board)
     m = len(board[0])
-    words = set()
-    visited = [[False] * m for _ in range(n)]
+    words = dict()
+
     for i in range(n):
         for j in range(m):
-            gen_permutations(board, trie, i, j, visited, board[i][j], words, n, m)
+            dfs(board, trie, i, j, list(), words, m, n)
 
-    print(words)
+    output(board, words, m, n)
 
 
 if __name__ == "__main__":
