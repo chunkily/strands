@@ -55,7 +55,9 @@ def dfs(board, trie: Trie, i, j, path: list, words: dict, m, n):
 
 
 def display_answer(board, path, m, n):
+    print("  a b c d e f")
     for i in range(n):
+        print(i + 1, end=" ")
         for j in range(m):
             char = board[i][j]
             if (i, j) in path:
@@ -70,20 +72,40 @@ def output(board, words, m, n):
 
     while True:
         word = input(
-            "\n\nEnter a word to display its path, a ? to redisplay all words,\n or press Enter to exit: "
+            "\n\nEnter a word to display its path, a ? to redisplay all words,\n"
+            "!(mn) to display answers that contain a specific cell or nothing to exit: "
         )
         if word == "":
             return
         elif word == "?":
             print_words(words)
+        elif word.startswith("!"):
+            filtered = filter_answers(words, word[1:])
+            print_words(filtered)
         elif word in words:
             display_answer(board, words[word], m, n)
         else:
             print("Word not found in the board")
 
 
+def filter_answers(words, coords):
+    filtered = dict()
+    if len(coords) != 2:
+        return filtered
+
+    c1 = coords[0].lower()
+    c2 = coords[1]
+
+    cell = (int(c2) - 1, ord(c1) - ord("a"))
+
+    for word, path in words.items():
+        if cell in path:
+            filtered[word] = path
+    return filtered
+
+
 def print_words(words):
-    print(f"{len(words)} words found in the board:")
+    print(f"{len(words)} words found:")
 
     terminal_width = 80
     pos = 0

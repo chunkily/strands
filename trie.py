@@ -70,7 +70,14 @@ def build_trie():
     with open("data/words.json", "r") as f:
         words: dict = json.load(f)
         for word in words.keys():
-            trie.insert(word)
+            try:
+                # Only insert if word is only composed of letters
+                # and at least 4 characters long
+                if word.isalpha() and len(word) >= 4:
+                    trie.insert(word)
+            except:
+                print(f"Error inserting {word}")
+                raise
 
     pickle.dump(trie, open("data/trie.pkl", "wb"))
 
