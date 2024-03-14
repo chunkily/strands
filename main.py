@@ -1,6 +1,4 @@
-import json
-import pickle
-from trie import Trie, get_english_trie
+from trie import Trie, TrieNode, get_english_trie
 
 
 def read_board():
@@ -68,8 +66,6 @@ def display_answer(board, path, m, n):
 
 
 def output(board, words, m, n):
-    terminal_length = 80
-
     print_words(words)
 
     while True:
@@ -89,13 +85,14 @@ def output(board, words, m, n):
 def print_words(words):
     print(f"{len(words)} words found in the board:")
 
-    terminal_length = 80
+    terminal_width = 80
     pos = 0
     for word in sorted(words.keys()):
-        pos += len(word)
-        if pos > terminal_length:
+        word_len = len(word)
+        pos += word_len
+        if pos > terminal_width:
             print()
-            pos = len(word)
+            pos = word_len
         print(word, end=" ")
 
 
