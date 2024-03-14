@@ -1,38 +1,18 @@
 import json
 import pickle
-from trie import Trie
-
-
-def build_english_trie():
-    try:
-        with open("data/trie.pkl", "rb") as pickle_in:
-            trie = pickle.load(pickle_in)
-            return trie
-    except FileNotFoundError:
-        print("Building trie from words.json")
-
-    trie = Trie()
-
-    with open("data/words.json", "r") as f:
-        words: dict = json.load(f)
-        for word in words.keys():
-            trie.insert(word)
-
-    pickle.dump(trie, open("data/trie.pkl", "wb"))
-
-    return trie
+from trie import Trie, get_english_trie
 
 
 def read_board():
     board = [
-        "rjgzip",
-        "yumrer",
-        "laalar",
-        "srnfit",
-        "apdnen",
-        "cniapc",
-        "aodlio",
-        "nysean",
+        "frnnrd",
+        "ogeuoa",
+        "nhtyrl",
+        "roueob",
+        "sennou",
+        "pyffsg",
+        "roadot",
+        "kycoye",
     ]
 
     return board
@@ -90,14 +70,7 @@ def display_answer(board, path, m, n):
 def output(board, words, m, n):
     terminal_length = 80
 
-    print(f"{len(words)} words found in the board:")
-
-    pos = 0
-    for word in sorted(words.keys()):
-        if pos + len(word) > terminal_length:
-            print()
-            pos = 0
-        print(word, end=" ")
+    print_words(words)
 
     while True:
         word = input(
@@ -106,20 +79,28 @@ def output(board, words, m, n):
         if word == "":
             return
         elif word == "?":
-            pos = 0
-            for word in sorted(words.keys()):
-                if pos + len(word) > terminal_length:
-                    print()
-                    pos = 0
-                print(word, end=" ")
+            print_words(words)
         elif word in words:
             display_answer(board, words[word], m, n)
         else:
             print("Word not found in the board")
 
 
+def print_words(words):
+    print(f"{len(words)} words found in the board:")
+
+    terminal_length = 80
+    pos = 0
+    for word in sorted(words.keys()):
+        pos += len(word)
+        if pos > terminal_length:
+            print()
+            pos = len(word)
+        print(word, end=" ")
+
+
 def main():
-    trie = build_english_trie()
+    trie = get_english_trie()
 
     board = read_board()
     n = len(board)
