@@ -2,18 +2,23 @@ from trie import Trie, TrieNode, get_english_trie
 
 
 def read_board():
-    board = [
-        "frnnrd",
-        "ogeuoa",
-        "nhtyrl",
-        "roueob",
-        "sennou",
-        "pyffsg",
-        "roadot",
-        "kycoye",
-    ]
+    board = []
+    print("Enter the board. (use spaces to exclude cells)")
+    for _ in range(8):
+        row = input(f"Row {_ + 1}: ")
+        board.append(row)
 
-    return board
+    while True:
+        print_board(board)
+        confirm = input("Is this the board you want to use? (Y/n): ")
+        if confirm.lower() == "n":
+            row = int(input("Enter the row to change: ")) - 1
+            col_letter = int(input("Enter the column to change: ")) - 1
+            col = ord(col_letter) - ord("a")
+            char = input("Enter the new character: ")
+            board[row] = board[row][:col] + char + board[row][col + 1 :]
+        else:
+            return board
 
 
 def dfs(board, trie: Trie, i, j, path: list, words: dict, m, n):
@@ -54,6 +59,15 @@ def dfs(board, trie: Trie, i, j, path: list, words: dict, m, n):
     path.pop()
 
 
+def print_board(board):
+    print("  a b c d e f")
+    for i in range(8):
+        print(i + 1, end=" ")
+        for j in range(6):
+            print(board[i][j], end=" ")
+        print()
+
+
 def display_answer(board, path, m, n):
     print("  a b c d e f")
     for i in range(n):
@@ -79,6 +93,7 @@ def output(board, words, m, n):
             return
         elif word == "?":
             print_words(words)
+            print_board(board)
         elif word.startswith("!"):
             filtered = filter_answers(words, word[1:])
             print_words(filtered)
@@ -127,6 +142,7 @@ def main():
     words = dict()
 
     for i in range(n):
+        print("Calculating... ", i / n * 100, "%")
         for j in range(m):
             dfs(board, trie, i, j, list(), words, m, n)
 

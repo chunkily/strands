@@ -67,7 +67,7 @@ def build_trie():
     print("Building trie...")
     trie = Trie()
 
-    with open("data/words.json", "r") as f:
+    with open("data/words_dictionary.json", "r") as f:
         words: dict = json.load(f)
         for word in words.keys():
             try:
