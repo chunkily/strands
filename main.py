@@ -6,6 +6,7 @@ def read_board():
     print("Enter the board. (use spaces to exclude cells)")
     for _ in range(8):
         row = input(f"Row {_ + 1}: ")
+        row = row.ljust(6, " ")
         board.append(row)
 
     while True:
